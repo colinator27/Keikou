@@ -62,6 +62,9 @@
 
 static IDWriteFactory*          dwriteFactory_ptr;
 static IDWriteTextFormat*       dwriteTextFormat_ptr;
+static IDWriteFontCollection*   dwriteFontCollection_ptr;
+static IDWriteFontFamily*       dwriteFontFamily_ptr;
+static IDWriteLocalizedStrings* dwriteFamilyNames_ptr;
 static ID2D1Factory*            d2dFactory_ptr;
 static ID2D1HwndRenderTarget*   d2dRenderTarget_ptr;
 static ID2D1SolidColorBrush*    d2dBrush_ptr;
@@ -181,8 +184,87 @@ int WINAPI WinMain(
         return -1;
     }
 
+    // Default Windows font:
+    const wchar_t defaultFontName[8] = L"Calibri";
+
+    // Get System font information:
+    // UINT32 familyCount = 0;
+    // result = dwriteFactory_ptr->GetSystemFontCollection(&dwriteFontCollection_ptr);
+    // 
+    // if (!SUCCEEDED(result)) {
+    //     MessageBox(NULL, "Could not collect System fonts.", "Error", MB_OK);
+    //     return -1;
+    // }
+    // 
+    // wchar_t localName[LOCALE_NAME_MAX_LENGTH];
+    // 
+    // familyCount = dwriteFontCollection_ptr->GetFontFamilyCount();
+    // 
+    //  if (familyCount == 0) {
+    //      MessageBox(NULL, "No families exist!", "Fatal Error", MB_OK);
+    //      return -1;
+    //  }
+    // 
+    // int defaultLocaleSuccess = GetUserDefaultLocaleName(localName, LOCALE_NAME_MAX_LENGTH);
+    // 
+    // Pick a default font to display:
+    // UINT32  index   = 0, length = 0;
+    // BOOL    exists  = 0;
+    // 
+    // for (unsigned int i = 0; i < familyCount; i++) {
+    //     result = dwriteFontCollection_ptr->GetFontFamily(i, &dwriteFontFamily_ptr);
+    // 
+    //     if (!SUCCEEDED(result)) {
+    //         MessageBox(NULL, "Failed to get font families", "Error", MB_OK);
+    //         return -1;
+    //     }
+    // 
+    //     result = dwriteFontFamily_ptr->GetFamilyNames(&dwriteFamilyNames_ptr);
+    // 
+    //     if (!SUCCEEDED(result)) {
+    //         MessageBox(NULL, "Failed to get family names", "Error", MB_OK);
+    //         return -1;
+    //     }
+    // 
+    //     while (exists) {
+    //         if (defaultLocaleSuccess) {
+    //             result = dwriteFamilyNames_ptr->FindLocaleName(localName, &index, &exists);
+    //         }
+    //         
+    //         // Try one more time in English for English only
+    //         if (SUCCEEDED(result) && !exists) {
+    //             result = dwriteFamilyNames_ptr->FindLocaleName(L"en-us", &index, &exists);
+    //         }
+    // 
+    //         if (!SUCCEEDED(result)) {
+    //             MessageBox(NULL, "Could not find locales for families.", "Error", MB_OK);
+    //             return -1;
+    //         }
+    // 
+    //         if (!exists) { index = 0; break; }
+    // 
+    //         result = dwriteFamilyNames_ptr->GetStringLength(index, &length);
+    //         wchar_t* name = new wchar_t[length + 1];
+    // 
+    //         if (name == NULL) result = E_OUTOFMEMORY;
+    // 
+    //         if (!SUCCEEDED(result)) {
+    //             MessageBox(NULL, "No moar memry", "Err", MB_OK);
+    //             return -1;
+    //         }
+    // 
+    //         result = dwriteFamilyNames_ptr->GetString(index, name, length + 1);
+    // 
+    //         if (!SUCCEEDED(result)) {
+    //             MessageBox(NULL, "Some F*cked up sh*t happened here.", "Error", MB_OK);
+    //             return -1;
+    //         }
+    //     }
+    // }
+
+    // Create Text format to display:
     result = dwriteFactory_ptr->CreateTextFormat(
-        L"Consolas",
+        defaultFontName,
         NULL,
         DWRITE_FONT_WEIGHT_REGULAR,
         DWRITE_FONT_STYLE_NORMAL,
@@ -288,8 +370,8 @@ int WINAPI WinMain(
 
         // Drawing Text
         d2dRenderTarget_ptr->DrawText(
-            L"Some really cool text to render",
-            32,
+            defaultFontName,
+            8,
             dwriteTextFormat_ptr,
             layoutRect,
             d2dBrush_ptr
