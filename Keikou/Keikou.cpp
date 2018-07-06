@@ -179,12 +179,12 @@ int WINAPI WinMain(
     }
 
     result = dwriteFactory_ptr->CreateTextFormat(
-        L"Gabriola",                // Font family name.
-        NULL,                       // Font collection (NULL sets it to use the system font collection).
+        L"Consolas",
+        NULL,
         DWRITE_FONT_WEIGHT_REGULAR,
         DWRITE_FONT_STYLE_NORMAL,
         DWRITE_FONT_STRETCH_NORMAL,
-        72.0f,
+        16.0f,
         L"en-us",
         &dwriteTextFormat_ptr
     );
@@ -232,8 +232,8 @@ int WINAPI WinMain(
 
     // Set Client rendering target:
     result = d2dFactory_ptr->CreateHwndRenderTarget(
-            D2D1::RenderTargetProperties(),
-            D2D1::HwndRenderTargetProperties(
+        D2D1::RenderTargetProperties(),
+        D2D1::HwndRenderTargetProperties(
             window,
             size
         ),
@@ -274,11 +274,13 @@ int WINAPI WinMain(
         );
 
         // Getting Direct2D rendering area:
+        D2D1_SIZE_F renderTargetSize = d2dRenderTarget_ptr->GetSize();
+
         D2D1_RECT_F layoutRect = D2D1::RectF(
-            (float)(clientRect.left / dpix),
-            (float)(clientRect.top  / dpiy),
-            (float)((clientRect.right   - clientRect.left)  / dpix),
-            (float)((clientRect.bottom  - clientRect.top)   / dpiy)
+            0,
+            0,
+            renderTargetSize.width,
+            renderTargetSize.height
         );
 
         // Drawing Text
