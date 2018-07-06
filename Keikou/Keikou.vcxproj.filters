@@ -27,9 +27,18 @@
     <ClInclude Include="GL\wglew.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Keikou.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="api_actions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Keikou.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="get_error.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

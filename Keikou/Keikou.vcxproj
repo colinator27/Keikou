@@ -139,13 +139,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="get_error.cpp" />
     <ClCompile Include="Keikou.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="api_actions.h" />
     <ClInclude Include="GL\eglew.h" />
     <ClInclude Include="GL\glew.h" />
     <ClInclude Include="GL\glxew.h" />
     <ClInclude Include="GL\wglew.h" />
+    <ClInclude Include="Keikou.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,14 +1,4 @@
-#include <cstdio>
-#include <cstring>
-#include <Windows.h>
-#include <shellscalingapi.h>
-#include <d2d1.h>
-#include <d2d1_3.h>
-#include <dwrite_3.h>
-
-#pragma comment(lib, "Shcore.lib")
-#pragma comment(lib, "D2d1.lib")
-#pragma comment(lib, "Dwrite.lib")
+#include "Keikou.h"
 
 // Naming scheme (anything but windows style):
 //    • pascalCase for variables
@@ -69,12 +59,6 @@ static ID2D1Factory*            d2dFactory_ptr;
 static ID2D1HwndRenderTarget*   d2dRenderTarget_ptr;
 static ID2D1SolidColorBrush*    d2dBrush_ptr;
 
-// Handles all window events:
-LRESULT CALLBACK WinProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
-
-// Releases memory:
-template<class T> void SafeRelease(T **ppT);
-
 // Window entrance:
 int WINAPI WinMain(
     HINSTANCE hInstance,    HINSTANCE hPrevInstance,
@@ -98,11 +82,8 @@ int WINAPI WinMain(
 
     // Register window class:
     result = RegisterClassExW(&windowClass);
-
-    if (result == 0) {
-        MessageBox(NULL, "Failed to register class!", "Error", MB_OK);
-        return -1;
-    }
+    
+    CheckSuccess(CLSREGCREATE, result);
 
     // Register an OpenGL rendering context:
     PIXELFORMATDESCRIPTOR pfd = {0};
@@ -154,10 +135,7 @@ int WINAPI WinMain(
         NULL
     );
 
-    if (window == 0) {
-        MessageBox(NULL, "Failed to create Window!", "Error", MB_OK);
-        return -1;
-    }
+    CheckSuccess(WINCREATE, result);
 
     // The Device Context of the window for referencing purposes:
     HDC deviceContext = GetDC(window);
@@ -168,21 +146,15 @@ int WINAPI WinMain(
         &d2dFactory_ptr
     );
 
-    if (SUCCEEDED(result)) {
-        result = DWriteCreateFactory(
-            DWRITE_FACTORY_TYPE_SHARED,
-            __uuidof(IDWriteFactory),
-            reinterpret_cast<IUnknown**>(&dwriteFactory_ptr)
-        );
+    CheckSuccess(D2DFCREATE, result);
 
-        if (!SUCCEEDED(result)) {
-            MessageBox(NULL, "Direct2D failed to create write factory.", "Error", MB_OK);
-            return -1;
-        }
-    } else {
-        MessageBox(NULL, "Direct2D failed to initialize.", "Error", MB_OK);
-        return -1;
-    }
+    result = DWriteCreateFactory(
+        DWRITE_FACTORY_TYPE_SHARED,
+        __uuidof(IDWriteFactory),
+        reinterpret_cast<IUnknown**>(&dwriteFactory_ptr)
+    );
+
+    CheckSuccess(DWFCREATE, result);
 
     // Default Windows font:
     const wchar_t defaultFontName[8] = L"Calibri";
@@ -274,22 +246,19 @@ int WINAPI WinMain(
         &dwriteTextFormat_ptr
     );
 
-    if (!SUCCEEDED(result)) {
-        MessageBox(NULL, "Failed to create Text Format", "Error", MB_OK);
-        return -1;
-    }
+    CheckSuccess(TEXTFORMAT | CREATE, result);
 
     result = dwriteTextFormat_ptr->SetTextAlignment(
         DWRITE_TEXT_ALIGNMENT_CENTER
     );
 
-    if (!SUCCEEDED(result)) return -1;
+    CheckSuccess(TEXTALIGNMENT, result);
 
     result =dwriteTextFormat_ptr->SetParagraphAlignment(
         DWRITE_PARAGRAPH_ALIGNMENT_CENTER
     );
 
-    if (!SUCCEEDED(result)) return -1;
+    CheckSuccess(PARAGRAPH_ALIGNMENT, result);
 
     // Collect system data and conform the window:
     int screenLength    = GetSystemMetrics(SM_CXSCREEN);
@@ -325,12 +294,7 @@ int WINAPI WinMain(
         &d2dRenderTarget_ptr
     );
 
-    if (SUCCEEDED(result)) {
-        result = d2dRenderTarget_ptr->CreateSolidColorBrush(
-            D2D1::ColorF(D2D1::ColorF::Black),
-            &d2dBrush_ptr
-        );
-    }
+    CheckSuccess(SCBCREATE, result);
 
     ShowWindow(window, SW_SHOW);
     UpdateWindow(window);
@@ -348,19 +312,10 @@ int WINAPI WinMain(
         d2dRenderTarget_ptr->SetTransform(D2D1::IdentityMatrix());
         d2dRenderTarget_ptr->Clear(D2D1::ColorF(D2D1::ColorF::White));
 
-        // Get monitor DPI:
-        HMONITOR monitor = MonitorFromPoint({0, 0}, MONITOR_DEFAULTTOPRIMARY);
-        UINT dpix, dpiy;
-
-        GetDpiForMonitor(
-            monitor,
-            MDT_DEFAULT,
-            &dpix, &dpiy
-        );
-
         // Getting Direct2D rendering area:
         D2D1_SIZE_F renderTargetSize = d2dRenderTarget_ptr->GetSize();
 
+        // Rendering area:
         D2D1_RECT_F layoutRect = D2D1::RectF(
             0,
             0,
@@ -368,21 +323,26 @@ int WINAPI WinMain(
             renderTargetSize.height
         );
 
-        // Drawing Text
+        // size of font name:
+        size_t fontNameLength = sizeof(defaultFontName) / sizeof(defaultFontName[0]);
+
+        // Drawing Text:
         d2dRenderTarget_ptr->DrawText(
             defaultFontName,
-            8,
+            fontNameLength,
             dwriteTextFormat_ptr,
             layoutRect,
             d2dBrush_ptr
         );
 
+        // Stop drawing to back buffer:
         d2dRenderTarget_ptr->EndDraw();
 
+        // swap front and back buffers to display text:
         SwapBuffers(deviceContext);
     }
 
-    // Release rendering and brush contexts
+    // Release rendering and brush contexts:
     SafeRelease(&d2dRenderTarget_ptr);
     SafeRelease(&d2dBrush_ptr);
 
