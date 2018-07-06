@@ -141,6 +141,7 @@
   <ItemGroup>
     <ClCompile Include="get_error.cpp" />
     <ClCompile Include="Keikou.cpp" />
+    <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="api_actions.h" />

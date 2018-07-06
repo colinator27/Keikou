@@ -34,6 +34,11 @@ const char* GetErrorFor(unsigned int action) {
             return CREATIONFAILED("Text Format")
                     CODE(action);
 
+        // The window render target failed to create.
+        case RENDER_TARGET:
+            return CREATIONFAILED("window render target")
+                    CODE(action);
+
         // When solid color brush for Direct2D fails to create.
         case SOLID_COLOR_BRUSH:
             return CREATIONFAILED("solid color brush")

@@ -22,10 +22,13 @@ LRESULT CALLBACK WinProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 // Releases memory:
 template<class T> void SafeRelease(T **ppT);
 
+// Generates a window a proper window to use.
+HWND GenerateWindow(HINSTANCE hInstance);
+
 #define CheckSuccess(action, result)                            \
-    if (result < 0) {                                          \
+    if (result < 0)  {                                          \
         MessageBox(NULL, GetErrorFor(action), "Error", MB_OK);  \
-        return -1;                                              \
+        system("EXIT");                                         \
     }
 
 // Concantenate strings
