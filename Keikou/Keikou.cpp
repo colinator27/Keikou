@@ -50,15 +50,6 @@
 //              editor folding, text highlighting, and others.
 //      6. Provide project support and plugin support.
 
-static IDWriteFactory*          dwriteFactory_ptr;
-static IDWriteTextFormat*       dwriteTextFormat_ptr;
-static IDWriteFontCollection*   dwriteFontCollection_ptr;
-static IDWriteFontFamily*       dwriteFontFamily_ptr;
-static IDWriteLocalizedStrings* dwriteFamilyNames_ptr;
-static ID2D1Factory*            d2dFactory_ptr;
-static ID2D1HwndRenderTarget*   d2dRenderTarget_ptr;
-static ID2D1SolidColorBrush*    d2dBrush_ptr;
-
 // Window entrance:
 int WINAPI WinMain(
     HINSTANCE hInstance,    HINSTANCE hPrevInstance,
@@ -66,14 +57,11 @@ int WINAPI WinMain(
 ) {
     // A way to check our creation successes:
     HRESULT result = 0;
-    
+
     // Create and store window temporarily:
-    HWND window = GenerateWindow(hInstance);
+    window = GenerateWindow(hInstance);
 
     CheckSuccess(WINCREATE, result);
-
-    // The Device Context of the window for referencing purposes:
-    HDC deviceContext = GetDC(window);
 
     // Initialize Direct2D context and rendering pipeline:
     result = D2D1CreateFactory(
@@ -91,8 +79,8 @@ int WINAPI WinMain(
 
     CheckSuccess(DWFCREATE, result);
 
-    // Default Windows font:
-    const wchar_t defaultFontName[8] = L"Calibri";
+    // The Device Context of the window for referencing purposes:
+    deviceContext = GetDC(window);
 
     // Get System font information:
     // UINT32 familyCount = 0;
@@ -219,6 +207,8 @@ int WINAPI WinMain(
         clientRect.bottom   - clientRect.top
     );
 
+    if (d2dRenderTarget_ptr) SafeRelease(&d2dRenderTarget_ptr);
+
     // Set Client rendering target:
     result = d2dFactory_ptr->CreateHwndRenderTarget(
         D2D1::RenderTargetProperties(),
@@ -284,37 +274,15 @@ int WINAPI WinMain(
         SwapBuffers(deviceContext);
     }
 
-    // Release rendering and brush contexts:
+    // Release all contexts:
+    SafeRelease(&dwriteFactory_ptr);
+    SafeRelease(&dwriteFamilyNames_ptr);
+    SafeRelease(&dwriteFontCollection_ptr);
+    SafeRelease(&dwriteFontFamily_ptr);
+    SafeRelease(&dwriteTextFormat_ptr);
+    SafeRelease(&d2dFactory_ptr);
     SafeRelease(&d2dRenderTarget_ptr);
     SafeRelease(&d2dBrush_ptr);
 
     return 0;
-}
-
-// Implementations of things needed.
-template <class T> void SafeRelease(T **ppT)
-{
-    if (*ppT)
-    {
-        (*ppT)->Release();
-        *ppT = NULL;
-    }
-}
-
-/////////////////////////////////////////////////////////////////////////////
-///////////                Windows Procedure                /////////////////
-/////////////////////////////////////////////////////////////////////////////
-LRESULT CALLBACK WinProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
-    LRESULT result = 0;
-    
-    switch (msg) {
-        case WM_DESTROY:
-            PostQuitMessage(0);
-            break;
-        default:
-            result = DefWindowProcW(hwnd, msg, wparam, lparam);
-            break;
-    }
-
-    return result;
 }
