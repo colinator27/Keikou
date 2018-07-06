@@ -69,6 +69,9 @@ static ID2D1SolidColorBrush*    d2dBrush_ptr;
 // Handles all window events:
 LRESULT CALLBACK WinProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
+// Releases memory:
+template<class T> void SafeRelease(T **ppT);
+
 // Window entrance:
 int WINAPI WinMain(
     HINSTANCE hInstance,    HINSTANCE hPrevInstance,
@@ -298,12 +301,20 @@ int WINAPI WinMain(
     }
 
     // Release rendering and brush contexts
-    d2dRenderTarget_ptr->Release();
-    d2dBrush_ptr->Release();
-    d2dRenderTarget_ptr = NULL;
-    d2dBrush_ptr = NULL;
+    SafeRelease(&d2dRenderTarget_ptr);
+    SafeRelease(&d2dBrush_ptr);
 
     return 0;
+}
+
+// Implementations of things needed.
+template <class T> void SafeRelease(T **ppT)
+{
+    if (*ppT)
+    {
+        (*ppT)->Release();
+        *ppT = NULL;
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////
