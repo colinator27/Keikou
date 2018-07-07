@@ -58,10 +58,17 @@ int WINAPI WinMain(
     // A way to check our creation successes:
     HRESULT result = 0;
 
-    // Create and store window temporarily:
-    window = GenerateWindow(hInstance);
+    // Initialize application:
+    Keikou::InitializeKeikou(hInstance);
 
-    CheckSuccess(WINCREATE, result);
+    // Create and store window temporarily:
+    Keikou::Win_ptr window = Keikou::Window::GenerateWindow(L"Keikou");
+
+    // Get reference to Window handle:
+    const HWND handle = window->GetWindowHandle();
+
+    // Reference to device context:
+    const HDC deviceContext = window->GetDeviceContext();
 
     // Initialize Direct2D context and rendering pipeline:
     result = D2D1CreateFactory(
@@ -78,9 +85,6 @@ int WINAPI WinMain(
     );
 
     CheckSuccess(DWFCREATE, result);
-
-    // The Device Context of the window for referencing purposes:
-    deviceContext = GetDC(window);
 
     // Get System font information:
     // UINT32 familyCount = 0;
@@ -189,7 +193,7 @@ int WINAPI WinMain(
 
     // Set new size and position of Window before showing:
     SetWindowPos(
-        window,
+        handle,
         NULL,
         screenLength    / 4,
         screenStature   / 4,
@@ -199,7 +203,7 @@ int WINAPI WinMain(
     );
 
     RECT clientRect;
-    GetClientRect(window, &clientRect);
+    GetClientRect(handle, &clientRect);
 
     // Get d2d1 size for client rendering target:
     D2D1_SIZE_U size = D2D1::SizeU(
@@ -213,7 +217,7 @@ int WINAPI WinMain(
     result = d2dFactory_ptr->CreateHwndRenderTarget(
         D2D1::RenderTargetProperties(),
         D2D1::HwndRenderTargetProperties(
-            window,
+            handle,
             size
         ),
         &d2dRenderTarget_ptr
@@ -228,8 +232,8 @@ int WINAPI WinMain(
 
     CheckSuccess(SCBCREATE, result);
 
-    ShowWindow(window, SW_SHOW);
-    UpdateWindow(window);
+    ShowWindow(handle, SW_SHOW);
+    UpdateWindow(handle);
 
     // Message holder:
     MSG msg;
@@ -254,9 +258,6 @@ int WINAPI WinMain(
             renderTargetSize.width,
             renderTargetSize.height
         );
-
-        // size of font name:
-        size_t fontNameLength = sizeof(defaultFontName) / sizeof(defaultFontName[0]);
 
         // Drawing Text:
         d2dRenderTarget_ptr->DrawText(

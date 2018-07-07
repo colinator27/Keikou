@@ -1,13 +1,16 @@
-#include "Keikou.h"
+#include "main_include.h"
 
 #define CODE(x)             "code:" CODEFOR(x)
 #define CREATIONFAILED(x)   "Failed to create " x ", "
 #define FAILEDPROC(x)       "Failed to do procedure \"" x "\""
 
-#define UNKNOWN_ERR         "Unknown Error, refer to docs."
+#define UNKNOWN_ERR         "Unknown Error; What did you do, what did you touch?! We told you not to touch things you shouldn't."
 
 // definition for GetErrorFor(uint)
-const char* GetErrorFor(unsigned int action) {
+string GetErrorFor(uint action) {
+    if (action == UNINITIALIZED_APP)
+        return "App was not properly initialized, " CODE(UNINITIALIZED_APP);
+
     switch (action & ~CREATE) {
         // When class registry fails.
         case CLASS_REGISTRATION:

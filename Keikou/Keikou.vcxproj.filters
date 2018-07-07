@@ -30,7 +30,13 @@
     <ClInclude Include="Keikou.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="api_actions.h">
+    <ClInclude Include="Window.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="main_include.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="initializations.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -48,6 +54,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="util.h">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="initializations.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

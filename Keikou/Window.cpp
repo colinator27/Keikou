@@ -1,9 +1,93 @@
-#include "Keikou.h"
+#include "Window.h"
+#include "initializations.h"
 
-HWND GenerateWindow(HINSTANCE hInstance) {
-    // place to store results:
-    HRESULT result;
-    
+using namespace Keikou;
+
+// Generates a HWND for the given Instance.
+HWND GenerateWindowHandle(wstring name);
+
+// Creates a default Pixel Format Descriptor for the device context.
+PIXELFORMATDESCRIPTOR CreatePFD();
+
+// Creates a new Window.
+Win_ptr Window::GenerateWindow(wstring name) {
+    Win_ptr window = new Window;
+    window->handle = GenerateWindowHandle(name);
+
+    return window;
+}
+
+// Returns this Window's handle.
+const HWND& Window::GetWindowHandle() const { return this->handle; }
+
+// Sets a new extended window style for this Window.
+void Window::SetExtendedStyle(DWORD exStyle) const {
+    SetWindowLongW(this->handle, GWL_EXSTYLE, exStyle);
+    SetWindowPos(
+        this->handle, HWND_TOP,
+        0, 0, 0, 0,
+        SWP_NOMOVE | SWP_NOREPOSITION | SWP_DRAWFRAME
+    );
+}
+
+// Sets a new standard window style for this Window.
+void Window::SetStandardStyle(DWORD style) const {
+    SetWindowLongW(this->handle, GWL_STYLE, style);
+    SetWindowPos(
+        this->handle, HWND_TOP,
+        0, 0, 0, 0,
+        SWP_NOMOVE | SWP_NOREPOSITION | SWP_DRAWFRAME
+    );
+}
+
+// Gets the extende window style for this Window.
+const DWORD& Window::GetExtendedStyle() const {
+    return GetWindowLongW(this->handle, GWL_EXSTYLE);
+}
+
+// Gets the standard style for this Window.
+const DWORD& Window::GetStandardStyle() const {
+    return GetWindowLongW(this->handle, GWL_STYLE);
+}
+
+// Gets the device context for this Window.
+const HDC& Window::GetDeviceContext() const {
+    return GetDC(this->handle);
+}
+
+HWND GenerateWindowHandle(wstring name) {
+    // A place to store results:
+    HRESULT result = 0;
+
+    // Register a Pixel Format Descriptor for the rendering context:
+    PIXELFORMATDESCRIPTOR pfd = CreatePFD();
+
+    // The Window styles:
+    DWORD exStyle   = WS_EX_ACCEPTFILES | WS_EX_APPWINDOW | WS_EX_OVERLAPPEDWINDOW;
+    DWORD style     = WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_OVERLAPPEDWINDOW | WS_TABSTOP;
+
+    CheckSuccess(WINCREATE, result);
+
+    return CreateWindowExW(
+        exStyle,
+        CLASSNAME,
+        name,
+        style,
+        CW_USEDEFAULT,
+        CW_USEDEFAULT,
+        CW_USEDEFAULT,
+        CW_USEDEFAULT,
+        NULL,
+        NULL,
+        hInstance,
+        NULL
+    );
+}
+
+// Designed to Register a default Window Class style for all windows in the application.
+void Keikou::RegisterWindowClass(HINSTANCE hInstance) {
+    HRESULT result = 0;
+
     // Window class:
     WNDCLASSEXW windowClass = {0};
 
@@ -16,7 +100,7 @@ HWND GenerateWindow(HINSTANCE hInstance) {
     // windowClass.hIconSm         = 0;
     windowClass.hInstance       = hInstance;
     windowClass.lpfnWndProc     = WinProc;
-    windowClass.lpszClassName   = L"SORA::KEIKOU";
+    windowClass.lpszClassName   = CLASSNAME;
     // windowClass.lpszMenuName    = NULL;
     windowClass.style           = CS_DBLCLKS | CS_HREDRAW | CS_OWNDC | CS_VREDRAW;
 
@@ -24,8 +108,9 @@ HWND GenerateWindow(HINSTANCE hInstance) {
     result = RegisterClassExW(&windowClass);
     
     CheckSuccess(CLSREGCREATE, result);
+}
 
-    // Register an OpenGL rendering context:
+PIXELFORMATDESCRIPTOR CreatePFD() {
     PIXELFORMATDESCRIPTOR pfd = {0};
 
     // pfd.bReserved = 0;
@@ -55,22 +140,5 @@ HWND GenerateWindow(HINSTANCE hInstance) {
     pfd.nSize           = sizeof(PIXELFORMATDESCRIPTOR);
     pfd.nVersion        = 1;
 
-    // The Window styles:
-    DWORD exStyle   = WS_EX_ACCEPTFILES | WS_EX_APPWINDOW | WS_EX_OVERLAPPEDWINDOW;
-    DWORD style     = WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_OVERLAPPEDWINDOW | WS_TABSTOP;
-
-    return CreateWindowExW(
-        exStyle,
-        L"SORA::KEIKOU",
-        L"Keikou",
-        style,
-        CW_USEDEFAULT,
-        CW_USEDEFAULT,
-        CW_USEDEFAULT,
-        CW_USEDEFAULT,
-        NULL,
-        NULL,
-        hInstance,
-        NULL
-    );
+    return pfd;
 }

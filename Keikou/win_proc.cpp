@@ -1,4 +1,4 @@
-#include "Keikou.h"
+#include "Window.h"
 
 LRESULT CALLBACK WinProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
     LRESULT result = 0;
