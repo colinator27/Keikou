@@ -142,6 +142,7 @@
     <ClCompile Include="get_error.cpp" />
     <ClCompile Include="initializations.cpp" />
     <ClCompile Include="Keikou.cpp" />
+    <ClCompile Include="StaggeredBuffer.cpp" />
     <ClCompile Include="util.h" />
     <ClCompile Include="Window.cpp" />
     <ClCompile Include="win_proc.cpp" />
@@ -154,6 +155,7 @@
     <ClInclude Include="initializations.h" />
     <ClInclude Include="Keikou.h" />
     <ClInclude Include="main_include.h" />
+    <ClInclude Include="StaggeredBuffer.h" />
     <ClInclude Include="Window.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

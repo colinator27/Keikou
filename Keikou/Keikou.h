@@ -5,6 +5,7 @@
 #include "util.h"
 #include "Window.h"
 #include "initializations.h"
+#include "StaggeredBuffer.h"
 
 // Default Windows font:
 wstring defaultFontName = L"Calibri";
